@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Number Sense Drill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#ECE8FF; --fg:#1B1740; --muted:#5E5990;
+  --card:#FFFFFF; --card-fg:#1B1740; --field:#F3F0FF; --edge:#1B1740;
+  --easy:#2DD4A7; --med:#FFB02E; --hard:#FF4F79; --ink:#1B1740;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161236; --fg:#F2EFFF; --muted:#A9A3D6;
+    --card:#241F57; --card-fg:#F2EFFF; --field:#322C73; --edge:#0A0820;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161236; --fg:#F2EFFF; --muted:#A9A3D6;
+  --card:#241F57; --card-fg:#F2EFFF; --field:#322C73; --edge:#0A0820;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);
+  font-family:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit}
+:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+
+/* ---------- home ---------- */
+.wrap{max-width:980px;margin:0 auto;padding:28px 20px 56px}
+h1{font-size:clamp(2.8rem,10vw,5.6rem);line-height:.95;letter-spacing:-.04em;font-weight:800;margin:28px 0 14px}
+.lede{font-size:1.15rem;max-width:36ch;color:var(--muted);margin:0 0 26px;line-height:1.4}
+.pick{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-weight:700}
+.seg{display:inline-flex;gap:4px;padding:4px;background:var(--field);border-radius:999px;border:2px solid var(--edge)}
+.seg button{font-weight:700;border:0;background:transparent;color:var(--fg);padding:8px 18px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:30px}
+.mode{
+  text-align:left;color:var(--ink);background:var(--c);
+  border:3px solid var(--edge);border-radius:26px;padding:22px;cursor:pointer;
+  box-shadow:0 8px 0 var(--edge);transition:transform .12s,box-shadow .12s;
+  display:flex;flex-direction:column;gap:12px;min-height:230px
+}
+.mode:hover{transform:translateY(-3px);box-shadow:0 11px 0 var(--edge)}
+.mode:active{transform:translateY(6px);box-shadow:0 2px 0 var(--edge)}
+.mode h2{font-size:2.5rem;margin:0;letter-spacing:-.03em;font-weight:800;line-height:1}
+.mode p{margin:0;font-size:1rem;line-height:1.4;font-weight:500}
+.mode .best{margin-top:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:600;font-size:.85rem}
+.howto{margin-top:34px;color:var(--muted);max-width:60ch;line-height:1.5}
+
+/* ---------- play ---------- */
+.play{max-width:760px;margin:0 auto;padding:18px 20px 44px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ghost{background:transparent;color:var(--fg);border:2px solid var(--edge);border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:800}
+.bar .mono{font-size:1.1rem}
+.track{height:16px;border-radius:999px;background:var(--field);border:2px solid var(--edge);overflow:hidden;margin:14px 0 14px}
+.fill{height:100%;width:0;background:var(--accent);transition:width .25s}
+.streak{height:30px;text-align:center;font-weight:800;font-size:1.05rem}
+.qcard{
+  background:var(--card);color:var(--card-fg);border:3px solid var(--edge);border-radius:32px;
+  box-shadow:0 10px 0 var(--edge);padding:30px 22px 26px;text-align:center;
+  transition:background-color .15s,color .15s
+}
+.qcard.ok{background:var(--easy);color:var(--ink)}
+.qcard.bad{background:var(--hard);color:var(--ink)}
+.qcard.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.tag{display:inline-block;background:var(--accent);color:var(--ink);font-weight:800;font-size:.9rem;
+  padding:4px 14px;border-radius:999px;border:2px solid var(--edge);margin-bottom:6px}
+.tag:empty{display:none}
+.q{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:800;
+  font-size:clamp(2.1rem,9vw,4.4rem);line-height:1.1;letter-spacing:-.02em;
+  margin:8px 0 24px;overflow-wrap:anywhere}
+.q.long{font-size:clamp(1.4rem,5.6vw,2.7rem)}
+.ans{
+  width:min(100%,420px);font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:800;
+  font-size:clamp(1.8rem,7vw,3rem);text-align:center;color:var(--card-fg);background:var(--field);
+  border:3px solid var(--edge);border-radius:16px;padding:10px 14px
+}
+.qcard.ok .ans,.qcard.bad .ans{background:rgba(255,255,255,.6);color:var(--ink)}
+.fb{min-height:3.6em;margin-top:16px;font-weight:700;font-size:1.08rem;line-height:1.35}
+.fb small{display:block;font-weight:500;opacity:.9;margin-top:2px}
+.actions{display:flex;gap:12px;justify-content:center;margin-top:26px}
+.go{background:var(--accent);color:var(--ink);font-weight:800;font-size:1.1rem;
+  border:3px solid var(--edge);border-radius:18px;padding:12px 30px;box-shadow:0 5px 0 var(--edge);cursor:pointer}
+.go:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge)}
+
+/* ---------- results ---------- */
+.res{max-width:760px;margin:0 auto;padding:28px 20px 56px}
+.score{background:var(--accent);color:var(--ink);border:3px solid var(--edge);border-radius:32px;
+  box-shadow:0 10px 0 var(--edge);padding:28px 24px;position:relative}
+.score h1{margin:0 0 4px;font-size:clamp(2.2rem,8vw,3.6rem)}
+.big{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:800;font-size:clamp(3.4rem,17vw,7rem);line-height:1;letter-spacing:-.04em}
+.pill{display:inline-block;background:var(--ink);color:#fff;font-weight:800;border-radius:999px;padding:4px 14px;font-size:.9rem;margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin:30px 0}
+.stat{background:var(--card);color:var(--card-fg);border:3px solid var(--edge);border-radius:20px;padding:14px 16px}
+.stat b{display:block;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:1.6rem;font-weight:800}
+.stat span{color:var(--muted);font-weight:500;font-size:.95rem}
+.res h3{font-size:1.5rem;margin:30px 0 12px;letter-spacing:-.02em}
+.miss{background:var(--card);color:var(--card-fg);border:3px solid var(--edge);border-radius:20px;padding:14px 18px;margin-bottom:12px}
+.miss .t{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:800;font-size:1.25rem;overflow-wrap:anywhere}
+.miss .row{margin-top:6px;font-weight:700}
+.miss .row span{font-family:'JetBrains Mono',ui-monospace,monospace}
+.miss .tip{margin-top:4px;color:var(--muted);font-weight:500;line-height:1.4}
+.btns{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px}
+.btns .go{background:var(--accent)}
+.btns .ghost{padding:12px 26px;font-size:1.1rem;border-width:3px;border-radius:18px}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = a => a[ri(0,a.length-1)];
+const gcd = (a,b) => b ? gcd(b,a%b) : a;
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]]} return a };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mmss = ms => { const t=Math.floor(ms/1000); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0') };
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+const fmt = q => q.plain ? String(q.a) : Number(q.a).toLocaleString('en-US',{maximumFractionDigits:6});
+
+/* ---------- question generators ---------- */
+const GENS = {
+  easy: [
+    () => { const a=ri(21,89),b=ri(21,89); return {t:`${a} + ${b}`, a:a+b, tip:'Add the tens, then the ones.'} },
+    () => { const a=ri(60,160),b=ri(21,a-10); return {t:`${a} − ${b}`, a:a-b, tip:'Round the second number up, subtract, then give back the extra.'} },
+    () => { const a=ri(12,98); return {t:`${a} × 11`, a:a*11, tip:'Put the digit sum between the two digits (carry if it passes 9).'} },
+    () => { const n=ri(11,20); return {t:`${n}²`, a:n*n, tip:`${n}×${n} = ${n}×10 + ${n}×${n-10}`} },
+    () => { const a=ri(12,98); return {t:`${a} × 5`, a:a*5, tip:'Halve it, then multiply by 10.'} },
+    () => { const a=ri(12,99); return {t:`${a} × 9`, a:a*9, tip:`${a} × 10 − ${a}`} },
+    () => { const n=ri(4,48); return {t:`${n} × 25`, a:n*25, tip:`${n} × 100 ÷ 4`} },
+    () => {
+      const p=pick([10,20,25,50,75]), b=ri(2,30)*20;
+      const tips={10:'Slide the decimal one place left.',20:'Find 10%, then double it.',25:'Halve it twice.',50:'Cut it in half.',75:'Find 25%, then multiply by 3.'};
+      return {t:`${p}% of ${b}`, a:p*b/100, tip:tips[p]};
+    },
+    () => { const b=ri(3,9),a=ri(12,60); return {t:`${a*b} ÷ ${b}`, a:a, tip:`Think: what times ${b} lands on ${a*b}?`} },
+    () => { const a=ri(10,50),b=ri(3,9),c=ri(3,9); return {t:`${a} + ${b} × ${c}`, a:a+b*c, tip:'Multiply first, then add.'} },
+  ],
+  medium: [
+    () => { const t=ri(1,9); return {t:`${t*10+5}²`, a:t*(t+1)*100+25, tip:`${t} × ${t+1} = ${t*(t+1)}, then tack on 25.`} },
+    () => { const a=ri(101,999); return {t:`${a} × 11`, a:a*11, tip:'Same slide-and-add trick, carrying as needed.'} },
+    () => { const a=ri(12,29),b=ri(12,29); return {t:`${a} × ${b}`, a:a*b, tip:`${a}×10 + ${a}×${b-10}`} },
+    () => {
+      const p=pick([15,12.5,35,30,60,75]), b=ri(2,20)*40;
+      return {t:`${p}% of ${b}`, a:p*b/100, tip:'Build it from 10% and 5% (or 12.5% from one-eighth).'};
+    },
+    () => { const n=ri(21,40); return {t:`${n}²`, a:n*n, tip:`Use (${n-5})(${n+5}) + 25.`} },
+    () => { const a=ri(25,75),b=a-ri(2,9); return {t:`${a}² − ${b}²`, a:a*a-b*b, tip:`(a−b)(a+b) = ${a-b} × ${a+b}`} },
+    () => { const n=ri(15,60); return {t:`1 + 2 + 3 + … + ${n}`, a:n*(n+1)/2, tip:`n(n+1)/2 = ${n}×${n+1}÷2`} },
+    () => { const a=ri(12,99); return {t:`${a} × 101`, a:a*101, tip:`Write the number twice: ${a}${a}.`} },
+    () => { const x=ri(1,9),y=ri(1,9); return {t:`${100-x} × ${100-y}`, a:(100-x)*(100-y), tip:`${100-x} − ${y} = ${100-x-y} hundred, plus ${x}×${y} = ${x*y}.`} },
+    () => { const b=ri(6,19),a=ri(12,50); return {t:`${a*b} ÷ ${b}`, a:a, tip:`Break ${a*b} into friendly multiples of ${b}.`} },
+    () => { const a=ri(100,400),b=ri(100,400),c=ri(100,400); return {t:`${a} + ${b} + ${c}`, a:a+b+c, tip:'Add hundreds, tens, and ones separately.'} },
+    () => { const n=pick([1,3,5,7]); return {t:`${n}/8 as a decimal`, a:n/8, tip:'1/8 = 0.125, so multiply 0.125 by the numerator.'} },
+    () => { const n=ri(3,10); return {t:`${n}³`, a:n**3, tip:`${n}² × ${n} = ${n*n} × ${n}`} },
+  ],
+  hard: [
+    () => {
+      const n=pick([91,92,93,94,95,96,97,98,99,101,102,103,104,105,106,107,108,109,110,111,112]);
+      const d=Math.abs(n-100), s=n<100?'−':'+';
+      return {t:`${n}²`, a:n*n, tip:`(100 ${s} ${d})² = 10,000 ${s} ${200*d} + ${d*d}`};
+    },
+    () => { const n=ri(11,15); return {t:`${n}³`, a:n**3, tip:`${n}² = ${n*n}, then × ${n}.`} },
+    () => {
+      const t=ri(2,9),u=ri(1,9);
+      return {t:`${t*10+u} × ${t*10+10-u}`, a:(t*10+u)*(t*10+10-u), tip:`Same tens, units add to 10: ${t*(t+1)} hundred plus ${u*(10-u)}.`};
+    },
+    () => { const a=ri(31,99),b=ri(31,99); return {t:`${a} × ${b}`, a:a*b, tip:`${a}×${Math.floor(b/10)*10} + ${a}×${b%10}`} },
+    () => {
+      const len=ri(6,8); const s='1'+Array.from({length:len-1},()=>ri(0,1)).join('');
+      return {t:`${s} base 2 → base 10`, a:parseInt(s,2), tip:'Add the place values: 128, 64, 32, 16, 8, 4, 2, 1.'};
+    },
+    () => {
+      const n=ri(20,127);
+      return {t:`${n} base 10 → base 2`, a:Number(n.toString(2)), plain:true, tip:'Subtract the biggest power of 2 that fits, repeat.'};
+    },
+    () => {
+      const a=ri(2,20),d=ri(2,7),n=ri(10,30),last=a+(n-1)*d;
+      return {t:`${a} + ${a+d} + ${a+2*d} + … + ${last}`, a:n*(a+last)/2, tip:`${n} terms × average (${a}+${last})/2`};
+    },
+    () => { const a=ri(112,987),b=ri(112,987); return {t:`≈ ${a} × ${b}`, a:a*b, tol:.05, tip:'Round each to two digits and multiply.'} },
+    () => { const a=ri(1000,9999),b=ri(12,99); return {t:`≈ ${a} ÷ ${b}`, a:a/b, tol:.05, tip:'Round both numbers to friendly values first.'} },
+    () => { const a=ri(1000,9999),b=ri(7,13); return {t:`Remainder of ${a} ÷ ${b}`, a:a%b, tip:`Strip off multiples of ${b} from the front.`} },
+    () => { const n=ri(5,8); let f=1; for(let i=2;i<=n;i++) f*=i; return {t:`${n}!`, a:f, tip:'Multiply up from 1, pairing numbers that make round products.'} },
+    () => {
+      const g=ri(2,9),x=ri(2,9),y=ri(2,9); let a=g*x,b=g*y; if(a===b) b+=g;
+      return {t:`GCD of ${a} and ${b}`, a:gcd(a,b), tip:'Factor both, keep the shared primes.'};
+    },
+    () => {
+      let a=ri(6,20),b=ri(6,20); if(a===b) b++;
+      return {t:`LCM of ${a} and ${b}`, a:a*b/gcd(a,b), tip:'(a × b) ÷ GCD.'};
+    },
+    () => { const x=ri(12,99),y=ri(12,99); return {t:`${(x/10).toFixed(1)} × ${(y/10).toFixed(1)}`, a:x*y/100, tip:'Ignore the decimals, multiply, then put two decimal places back.'} },
+    () => {
+      const p=pick([110,120,125,150,175]), b=ri(2,20)*40;
+      return {t:`${p}% of ${b}`, a:p*b/100, tip:'100% plus the extra part.'};
+    },
+    () => { const m=ri(10,19); return {t:`${m*10+5}²`, a:m*(m+1)*100+25, tip:`${m} × ${m+1} = ${m*(m+1)}, then tack on 25.`} },
+  ]
+};
+
+const META = {
+  easy:   { name:'Easy',   color:'var(--easy)', blurb:'Two-digit adds and subtracts, ×5, ×9, ×11, squares to 20, easy percents.' },
+  medium: { name:'Medium', color:'var(--med)',  blurb:'Squares ending in 5, 3-digit ×11, near-100 products, sums to n, fractions to decimals.' },
+  hard:   { name:'Hard',   color:'var(--hard)', blurb:'Cubes, base 2, remainders, GCD/LCM, series, and ≈ estimates within 5%.' }
+};
+
+function buildRound(mode, n){
+  const gens = GENS[mode], out = [], seen = new Set();
+  let pool = [], guard = 0;
+  while(out.length < n && guard++ < 2000){
+    if(!pool.length) pool = shuffle(gens.slice());
+    const q = pool.pop()();
+    if(seen.has(q.t)) continue;
+    seen.add(q.t); out.push(q);
+  }
+  return out;
+}
+
+function parse(s){
+  s = s.trim().replace(/[,\s$]/g,'').replace(/%$/,'');
+  if(/^-?\d+\/\d+$/.test(s)){ const [n,d]=s.split('/'); return +n/+d }
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+  return parseFloat(s);
+}
+const isExact = (g,q) => Math.abs(g-q.a) < 1e-6;
+const isClose = (g,q) => q.tol ? Math.abs(g-q.a) <= Math.abs(q.a)*q.tol : isExact(g,q);
+
+/* ---------- state ---------- */
+const app = $('#app');
+let count = parseInt(store.get('nss:count'),10) || 20;
+if(![10,20,40].includes(count)) count = 20;
+let S = null, view = 'home';
+
+function readBest(mode, n){
+  try { return JSON.parse(store.get(`nss:best:${mode}:${n}`) || 'null') } catch(e){ return null }
+}
+
+/* ---------- home ---------- */
+function renderHome(){
+  view = 'home';
+  if(S && S.timerId) clearInterval(S.timerId);
+  const cards = ['easy','medium','hard'].map(k => {
+    const b = readBest(k,count);
+    return `<button class="mode" data-mode="${k}" style="--c:${META[k].color}">
+      <h2>${META[k].name}</h2>
+      <p>${META[k].blurb}</p>
+      <span class="best">${b ? `Best: ${b.score}/${count} in ${mmss(b.time)}` : 'No score yet'}</span>
+    </button>`;
+  }).join('');
+  app.innerHTML = `<div class="wrap">
+    <h1>Number Sense Drill</h1>
+    <p class="lede">UIL-style mental math. Read it, type the answer, hit Enter. The next one is already waiting.</p>
+    <div class="pick">Questions per round
+      <div class="seg" role="group" aria-label="Questions per round">
+        ${[10,20,40].map(n=>`<button data-count="${n}" aria-pressed="${n===count}">${n}</button>`).join('')}
+      </div>
+    </div>
+    <div class="modes">${cards}</div>
+    <p class="howto">Wrong answers show the correct one for a moment (press Enter to skip ahead). Questions marked ≈ accept anything within 5%, like the real contest. Don't use a calculator or scratch paper if you want the real practice.</p>
+  </div>`;
+}
+
+/* ---------- play ---------- */
+function startRound(mode){
+  view = 'play';
+  S = { mode, qs: buildRound(mode,count), i:0, correct:0, streak:0, bestStreak:0, misses:[], locked:false, start:Date.now(), timeout:null, end:0 };
+  app.innerHTML = `<section class="play" style="--accent:${META[mode].color}">
+    <header class="bar">
+      <button class="ghost" id="quit">Quit</button>
+      <div class="mono" id="count"></div>
+      <div class="mono" id="clock">0:00</div>
+    </header>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="streak" id="streak"></div>
+    <div class="qcard" id="qcard">
+      <div class="tag" id="tag"></div>
+      <div class="q" id="q"></div>
+      <input class="ans" id="ans" type="text" inputmode="decimal" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" aria-label="Your answer">
+      <div class="fb" id="fb" aria-live="polite"></div>
+    </div>
+    <div class="actions">
+      <button class="ghost" id="skip">Skip</button>
+      <button class="go" id="go">Check</button>
+    </div>
+  </section>`;
+  $('#ans').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); submit(); } });
+  $('#go').addEventListener('click', () => { submit(); $('#ans').focus(); });
+  $('#skip').addEventListener('click', () => { skip(); $('#ans').focus(); });
+  $('#quit').addEventListener('click', renderHome);
+  S.timerId = setInterval(() => { $('#clock').textContent = mmss(Date.now()-S.start) }, 250);
+  showQuestion();
+}
+
+function showQuestion(){
+  const q = S.qs[S.i], n = S.qs.length;
+  const card = $('#qcard'); card.className = 'qcard';
+  const qe = $('#q'); qe.textContent = q.t; qe.classList.toggle('long', q.t.length > 14);
+  $('#tag').textContent = q.tol ? 'Within 5% counts' : '';
+  const a = $('#ans'); a.value = ''; a.readOnly = false;
+  $('#fb').innerHTML = '';
+  $('#count').textContent = `${S.i+1} / ${n}`;
+  $('#fill').style.width = (S.i/n*100)+'%';
+  $('#streak').textContent = S.streak >= 2 ? `Streak ${S.streak}` : '';
+  S.locked = false;
+  a.focus();
+}
+
+function lock(delay){
+  S.locked = true; $('#ans').readOnly = true;
+  clearTimeout(S.timeout);
+  S.timeout = setTimeout(advance, delay);
+}
+
+function advance(){
+  clearTimeout(S.timeout);
+  S.i++;
+  if(S.i >= S.qs.length) finish(); else showQuestion();
+}
+
+function submit(){
+  if(view !== 'play') return;
+  if(S.locked){ advance(); return; }
+  const raw = $('#ans').value;
+  if(!raw.trim()) return;
+  const g = parse(raw), q = S.qs[S.i], card = $('#qcard');
+  if(!isFinite(g)){
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    $('#fb').textContent = 'Enter a number, like 144 or 0.375.';
+    return;
+  }
+  if(isClose(g,q)){
+    S.correct++; S.streak++; S.bestStreak = Math.max(S.bestStreak,S.streak);
+    card.classList.add('ok');
+    const exact = isExact(g,q);
+    $('#fb').innerHTML = exact ? 'Correct' : `Close enough<small>Exact answer: ${esc(fmt(q))}</small>`;
+    $('#streak').textContent = S.streak >= 2 ? `Streak ${S.streak}` : '';
+    lock(exact ? 350 : 1200);
+  } else {
+    miss(q, raw);
+  }
+}
+
+function skip(){
+  if(view !== 'play' || S.locked) return;
+  miss(S.qs[S.i], '(skipped)');
+}
+
+function miss(q, you){
+  S.streak = 0;
+  S.misses.push({ t:q.t, a:fmt(q), you, tip:q.tip });
+  $('#qcard').classList.add('bad');
+  $('#streak').textContent = '';
+  $('#fb').innerHTML = `Answer: ${esc(fmt(q))}<small>${esc(q.tip)}</small>`;
+  lock(2800);
+}
+
+/* ---------- results ---------- */
+function finish(){
+  clearInterval(S.timerId); clearTimeout(S.timeout);
+  S.end = Date.now();
+  const total = S.qs.length, time = S.end - S.start, score = S.correct;
+  const key = `nss:best:${S.mode}:${total}`;
+  const prev = readBest(S.mode,total);
+  const isBest = !prev || score > prev.score || (score === prev.score && time < prev.time);
+  if(isBest) store.set(key, JSON.stringify({score,time}));
+  renderResults(time, isBest);
+}
+
+function renderResults(time, isBest){
+  view = 'results';
+  const total = S.qs.length, pct = Math.round(S.correct/total*100);
+  const msg = pct>=90 ? 'Contest ready.' : pct>=70 ? 'Solid round.' : pct>=50 ? 'Getting there.' : 'Keep drilling.';
+  const missHTML = S.misses.length ? `<h3>Review what you missed</h3>` + S.misses.map(m => `
+    <div class="miss">
+      <div class="t">${esc(m.t)}</div>
+      <div class="row">You: <span>${esc(m.you)}</span>&nbsp;&nbsp; Answer: <span>${esc(m.a)}</span></div>
+      <div class="tip">${esc(m.tip)}</div>
+    </div>`).join('') : `<h3>Perfect round. Nothing to review.</h3>`;
+  app.innerHTML = `<section class="res" style="--accent:${META[S.mode].color}">
+    <div class="score">
+      ${isBest ? '<span class="pill">New best</span>' : ''}
+      <h1>${msg}</h1>
+      <div class="big">${S.correct}/${total}</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${mmss(time)}</b><span>Total time</span></div>
+      <div class="stat"><b>${pct}%</b><span>Accuracy</span></div>
+      <div class="stat"><b>${S.bestStreak}</b><span>Best streak</span></div>
+      <div class="stat"><b>${(time/1000/total).toFixed(1)}s</b><span>Per question</span></div>
+    </div>
+    <div class="btns">
+      <button class="go" id="again">Play ${META[S.mode].name} again</button>
+      <button class="ghost" id="home">Change mode</button>
+    </div>
+    ${missHTML}
+  </section>`;
+  $('#again').addEventListener('click', () => startRound(S.mode));
+  $('#home').addEventListener('click', renderHome);
+  $('#again').focus();
+}
+
+/* ---------- events ---------- */
+app.addEventListener('click', e => {
+  const m = e.target.closest('[data-mode]');
+  if(m && view === 'home'){ startRound(m.dataset.mode); return; }
+  const c = e.target.closest('[data-count]');
+  if(c && view === 'home'){ count = +c.dataset.count; store.set('nss:count', String(count)); renderHome(); }
+});
+
+renderHome();
+</script>
+</body>
+</html>
